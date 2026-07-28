@@ -80,6 +80,7 @@ const services = [
 const activeService = ref(null);
 const drawerOpen = ref(false);
 const revealedCards = ref(new Set());
+const sectionVisible = ref(false);
 const cardRefs = ref([]);
 let observer = null;
 
@@ -124,6 +125,7 @@ onMounted(() => {
                     const next = new Set(revealedCards.value);
                     next.add(index);
                     revealedCards.value = next;
+                    sectionVisible.value = true;
                 }
             });
         },
@@ -221,6 +223,24 @@ onUnmounted(() => {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- "See more" CTA -->
+        <div
+            class="mt-16 text-center transition-all duration-700 ease-out"
+            :class="sectionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+        >
+            <Link
+                :href="route('servicios')"
+                class="inline-flex items-center gap-3 px-8 py-4 rounded-full border-2 border-brand-blue text-brand-blue font-bold text-sm uppercase tracking-wider
+                    hover:bg-brand-blue hover:text-white hover:shadow-[0_8px_30px_rgba(0,130,168,0.3)] hover:-translate-y-0.5
+                    transition-all duration-300 ease-out group"
+            >
+                {{ locale === 'en' ? 'View All Services' : 'Ver Todos los Servicios' }}
+                <svg class="size-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </Link>
         </div>
     </section>
 

@@ -89,10 +89,10 @@ onUnmounted(() => {
             <span
                 v-for="i in DOT_COUNT"
                 :key="i"
-                class="relative size-[0.375rem] rounded-full transition-all duration-500 ease-out pointer-events-none"
+                class="relative size-[.275rem] rounded-full transition-all duration-500 ease-out pointer-events-none"
                 :class="(i - 1) / DOT_COUNT <= progress
                     ? 'bg-brand-blue shadow-[0_0_6px_rgba(0,130,168,0.6)]'
-                    : 'bg-white/15'"
+                    : 'bg-gray-300/20'"
                 :style="{ flex: '1 0 auto' }"
             />
 

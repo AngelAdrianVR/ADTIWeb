@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import LandingAppLayout from '@/Layouts/LandingAppLayout.vue';
-import ServicesCards from '@/Components/ServicesCards.vue';
+import ServicesPage from '@/Components/ServicesPage.vue';
 
 const { t } = useI18n();
 
@@ -12,5 +12,5 @@ defineOptions({ layout: LandingAppLayout });
 <template>
     <Head :title="t('pages.services.title')" />
 
-    <ServicesCards />
+    <ServicesPage />
 </template>

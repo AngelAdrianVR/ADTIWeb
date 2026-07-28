@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import LandingNavBubble from '@/Components/LandingNavBubble.vue';
 import ScrollIndicator from '@/Components/ScrollIndicator.vue';
+import FooterLanding from '@/Components/FooterLanding.vue';
 
 const { t } = useI18n();
 
@@ -23,8 +24,11 @@ onMounted(() => {
         }, 150);
     });
 
-    router.on('start', () => {
-        isNavigating.value = true;
+    router.on('start', (event) => {
+        // Only show overlay for page navigations (GET), not form submissions
+        if (event.detail.visit.method === 'get') {
+            isNavigating.value = true;
+        }
     });
 
     router.on('finish', () => {
@@ -75,86 +79,7 @@ onUnmounted(() => {
         </main>
 
         <!-- Footer -->
-        <footer class="bg-ghost-white border-t border-steel-grey/10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div>
-                        <span class="text-xl font-bold tracking-tight text-deep-onyx">
-                            ADTI<span class="text-brand-blue">.</span>
-                        </span>
-                        <p class="mt-2 text-sm text-steel-grey leading-relaxed">
-                            {{ t('footer.tagline') }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">{{ t('footer.navigation') }}</h4>
-                        <ul class="space-y-2">
-                            <li>
-                                <Link
-                                    :href="route('servicios')"
-                                    class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
-                                >
-                                    {{ t('nav.services') }}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    :href="route('proyectos')"
-                                    class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
-                                >
-                                    {{ t('nav.projects') }}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    :href="route('nosotros')"
-                                    class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
-                                >
-                                    {{ t('nav.about') }}
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">{{ t('footer.contact') }}</h4>
-                        <ul class="space-y-2 text-sm text-steel-grey">
-                            <li>
-                                <a href="mailto:info@adti.com" class="hover:text-brand-blue transition-colors duration-200">
-                                    info@adti.com
-                                </a>
-                            </li>
-                            <li>
-                                <Link
-                                    :href="route('terms.show')"
-                                    class="hover:text-brand-blue transition-colors duration-200"
-                                >
-                                    {{ t('footer.terms') }}
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    :href="route('policy.show')"
-                                    class="hover:text-brand-blue transition-colors duration-200"
-                                >
-                                    {{ t('footer.privacy') }}
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-10 pt-6 border-t border-steel-grey/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <p class="text-xs text-steel-grey">
-                        &copy; {{ new Date().getFullYear() }} ADTI. {{ t('footer.rights') }}
-                    </p>
-                    <p class="text-xs text-steel-grey/50">
-                        {{ t('footer.taglineShort') }}
-                    </p>
-                </div>
-            </div>
-        </footer>
+        <FooterLanding />
 
         <!-- Page Transition Overlay -->
         <Transition

@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 
 const { t, locale } = useI18n();
 
 const menuOpen = ref(false);
-
+const menuRef = ref(null);
 const page = usePage();
 
 const routeLabels = computed(() => ({
@@ -24,16 +24,19 @@ const currentPageLabel = computed(() => {
 });
 
 const menuLinks = computed(() => [
-    { label: t('nav.home'), route: 'inicio' },
-    { label: t('nav.services'), route: 'servicios' },
-    { label: t('nav.projects'), route: 'proyectos' },
-    { label: t('nav.about'), route: 'nosotros' },
-    { label: t('nav.contact'), route: 'contacto' },
+    { label: t('nav.home'), route: 'inicio', component: 'Landing/Inicio' },
+    { label: t('nav.services'), route: 'servicios', component: 'Landing/Servicios' },
+    { label: t('nav.projects'), route: 'proyectos', component: 'Landing/Proyectos' },
+    { label: t('nav.about'), route: 'nosotros', component: 'Landing/Nosotros' },
+    { label: t('nav.contact'), route: 'contacto', component: 'Landing/Contacto' },
 ]);
 
-// Separamos los enlaces principales del botón de acción final (Contacto)
 const mainLinks = computed(() => menuLinks.value.slice(0, -1));
 const contactLink = computed(() => menuLinks.value[menuLinks.value.length - 1]);
+
+function isActive(link) {
+    return page.component === link.component || page.component === 'Landing/Splash' && link.route === 'inicio';
+}
 
 function toggleMenu() {
     menuOpen.value = !menuOpen.value;
@@ -48,6 +51,20 @@ function toggleLang() {
     locale.value = newLocale;
     localStorage.setItem('locale', newLocale);
 }
+
+function onClickOutside(e) {
+    if (menuOpen.value && menuRef.value && !menuRef.value.contains(e.target)) {
+        closeMenu();
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', onClickOutside, true);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', onClickOutside, true);
+});
 </script>
 
 <template>
@@ -64,6 +81,7 @@ function toggleLang() {
         >
             <div
                 v-if="menuOpen"
+                ref="menuRef"
                 class="-bottom-52 bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.1)] w-64 md:w-80 relative overflow-hidden flex flex-col"
             >
                 <!-- Botón Cerrar -->
@@ -88,10 +106,20 @@ function toggleLang() {
                             @click="closeMenu"
                             class="flex items-center gap-4 py-4 group"
                         >
-                            <span class="size-10 rounded-full bg-gray-50 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:bg-gray-100 group-hover:translate-x-4 transition-all ease-linear duration-200">
+                            <span
+                                class="size-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ease-linear duration-200"
+                                :class="isActive(link)
+                                    ? 'bg-brand-blue text-white scale-110 shadow-[0_0_12px_rgba(0,130,168,0.4)]'
+                                    : 'bg-gray-50 text-gray-500 group-hover:bg-gray-100 group-hover:translate-x-4'"
+                            >
                                 {{ i + 1 }}
                             </span>
-                            <span class="text-[#7d8d97] font-semibold text-lg group-hover:text-brand-blue group-hover:translate-x-4 transition-all ease-linear duration-200">
+                            <span
+                                class="font-semibold text-lg transition-all ease-linear duration-200"
+                                :class="isActive(link)
+                                    ? 'text-brand-blue translate-x-4'
+                                    : 'text-[#7d8d97] group-hover:text-brand-blue group-hover:translate-x-4'"
+                            >
                                 {{ link.label }}
                             </span>
                         </Link>
@@ -136,7 +164,9 @@ function toggleLang() {
             @click="toggleMenu"
             class="group flex items-center justify-between gap-4 bg-white pl-7 pr-2 py-2 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-300 ease-out"
         >
-            <span class="text-brand-blue font-bold text-xl tracking-tight">{{ currentPageLabel }}</span>
+            <span class="font-bold text-xl tracking-tight"
+                :class="menuLinks.some(l => isActive(l)) ? 'text-brand-blue' : 'text-brand-blue'"
+            >{{ currentPageLabel }}</span>
             <div class="size-10 rounded-full border text-black border-gray-200 group-hover:bg-brand-blue group-hover:scale-125 group-hover:text-white flex flex-col items-center justify-center gap-1.5 transition-all ease-linear duration-200">
                 <span class="w-4 h-[1px] bg-current"></span>
                 <span class="w-4 h-[1px] bg-current"></span>
