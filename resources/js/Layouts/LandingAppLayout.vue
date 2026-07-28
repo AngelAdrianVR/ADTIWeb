@@ -1,7 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import LandingNavBubble from '@/Components/LandingNavBubble.vue';
+import ScrollIndicator from '@/Components/ScrollIndicator.vue';
+
+const { t } = useI18n();
 
 defineProps({
     title: String,
@@ -37,33 +41,36 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="min-h-screen flex flex-col bg-white text-deep-onyx">
-        <!-- Header -->
-        <header class="sticky top-0 z-40 bg-transparent">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center h-36 justify-between">
-                    <Link
-                        :href="route('inicio')"
-                        class="flex items-center gap-2"
-                        :class="logoReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'"
-                        style="transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
-                    >
-                        <img class="h-12 md:h-16" src="@/../../public/images/logo_3d.png" alt="logo">
-                    </Link>
-
-
-                    <div
-                        :class="navReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'"
-                        style="transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
-                    >
-                        <LandingNavBubble />
-                    </div>
-                </div>
-            </div>
-        </header>
+    <div class="min-h-screen flex flex-col text-deep-onyx">
+        <!-- Scroll Progress Indicator -->
+        <ScrollIndicator />
 
         <!-- Page Content -->
-        <main class="flex-1">
+        <main class="flex-1 relative">
+            <!-- Header (inside main, overlays the page content) -->
+            <section class="sticky top-0 left-0 w-full z-40 bg-transparent">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center h-20 justify-between">
+                        <Link
+                            :href="route('inicio')"
+                            class="flex items-center gap-2"
+                            :class="logoReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'"
+                            style="transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        >
+                            <img draggable="false" class="h-12 md:h-16" src="@/../../public/images/logo_3d.png" alt="logo">
+                        </Link>
+
+
+                        <div
+                            :class="navReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-16'"
+                            style="transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                        >
+                            <LandingNavBubble />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <slot />
         </main>
 
@@ -76,19 +83,19 @@ onUnmounted(() => {
                             ADTI<span class="text-brand-blue">.</span>
                         </span>
                         <p class="mt-2 text-sm text-steel-grey leading-relaxed">
-                            Automatización y diseño industrial de alto nivel para las Américas.
+                            {{ t('footer.tagline') }}
                         </p>
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">Navegación</h4>
+                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">{{ t('footer.navigation') }}</h4>
                         <ul class="space-y-2">
                             <li>
                                 <Link
                                     :href="route('servicios')"
                                     class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
                                 >
-                                    Servicios
+                                    {{ t('nav.services') }}
                                 </Link>
                             </li>
                             <li>
@@ -96,7 +103,7 @@ onUnmounted(() => {
                                     :href="route('proyectos')"
                                     class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
                                 >
-                                    Proyectos
+                                    {{ t('nav.projects') }}
                                 </Link>
                             </li>
                             <li>
@@ -104,14 +111,14 @@ onUnmounted(() => {
                                     :href="route('nosotros')"
                                     class="text-sm text-steel-grey hover:text-brand-blue transition-colors duration-200"
                                 >
-                                    Nosotros
+                                    {{ t('nav.about') }}
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">Contacto</h4>
+                        <h4 class="text-xs font-semibold uppercase tracking-widest text-steel-grey mb-4">{{ t('footer.contact') }}</h4>
                         <ul class="space-y-2 text-sm text-steel-grey">
                             <li>
                                 <a href="mailto:info@adti.com" class="hover:text-brand-blue transition-colors duration-200">
@@ -123,7 +130,7 @@ onUnmounted(() => {
                                     :href="route('terms.show')"
                                     class="hover:text-brand-blue transition-colors duration-200"
                                 >
-                                    Términos de Uso
+                                    {{ t('footer.terms') }}
                                 </Link>
                             </li>
                             <li>
@@ -131,7 +138,7 @@ onUnmounted(() => {
                                     :href="route('policy.show')"
                                     class="hover:text-brand-blue transition-colors duration-200"
                                 >
-                                    Política de Privacidad
+                                    {{ t('footer.privacy') }}
                                 </Link>
                             </li>
                         </ul>
@@ -140,10 +147,10 @@ onUnmounted(() => {
 
                 <div class="mt-10 pt-6 border-t border-steel-grey/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p class="text-xs text-steel-grey">
-                        &copy; {{ new Date().getFullYear() }} ADTI. Todos los derechos reservados.
+                        &copy; {{ new Date().getFullYear() }} ADTI. {{ t('footer.rights') }}
                     </p>
                     <p class="text-xs text-steel-grey/50">
-                        Industrial Automation &middot; HMI &middot; SCADA &middot; Control Panels
+                        {{ t('footer.taglineShort') }}
                     </p>
                 </div>
             </div>

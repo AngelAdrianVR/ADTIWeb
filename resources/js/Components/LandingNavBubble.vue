@@ -1,37 +1,39 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t, locale } = useI18n();
 
 const menuOpen = ref(false);
-const lang = ref('ES');
 
 const page = usePage();
 
-const routeLabels = {
-    'Landing/Splash': 'Inicio',
-    'Landing/Inicio': 'Inicio',
-    'Landing/Servicios': 'Servicios',
-    'Landing/Proyectos': 'Proyectos',
-    'Landing/Nosotros': 'Nosotros',
-    'Landing/Contacto': 'Contacto',
-};
+const routeLabels = computed(() => ({
+    'Landing/Splash': t('nav.home'),
+    'Landing/Inicio': t('nav.home'),
+    'Landing/Servicios': t('nav.services'),
+    'Landing/Proyectos': t('nav.projects'),
+    'Landing/Nosotros': t('nav.about'),
+    'Landing/Contacto': t('nav.contact'),
+}));
 
 const currentPageLabel = computed(() => {
     const component = page.component;
-    return routeLabels[component] || component || 'Menú';
+    return routeLabels.value[component] || component || t('common.menu');
 });
 
-const menuLinks = [
-    { label: 'Inicio', route: 'inicio' },
-    { label: 'Servicios', route: 'servicios' },
-    { label: 'Proyectos', route: 'proyectos' },
-    { label: 'Nosotros', route: 'nosotros' },
-    { label: 'Contacto', route: 'contacto' },
-];
+const menuLinks = computed(() => [
+    { label: t('nav.home'), route: 'inicio' },
+    { label: t('nav.services'), route: 'servicios' },
+    { label: t('nav.projects'), route: 'proyectos' },
+    { label: t('nav.about'), route: 'nosotros' },
+    { label: t('nav.contact'), route: 'contacto' },
+]);
 
 // Separamos los enlaces principales del botón de acción final (Contacto)
-const mainLinks = computed(() => menuLinks.slice(0, -1));
-const contactLink = computed(() => menuLinks[menuLinks.length - 1]);
+const mainLinks = computed(() => menuLinks.value.slice(0, -1));
+const contactLink = computed(() => menuLinks.value[menuLinks.value.length - 1]);
 
 function toggleMenu() {
     menuOpen.value = !menuOpen.value;
@@ -42,7 +44,9 @@ function closeMenu() {
 }
 
 function toggleLang() {
-    lang.value = lang.value === 'ES' ? 'EN' : 'ES';
+    const newLocale = locale.value === 'es' ? 'en' : 'es';
+    locale.value = newLocale;
+    localStorage.setItem('locale', newLocale);
 }
 </script>
 
@@ -97,15 +101,15 @@ function toggleLang() {
                 <!-- Selector de Idioma y Botón de Contacto -->
                 <div class="px-3 pb-3">
                     <div class="px-4 py-3 flex items-center justify-between border-t border-gray-100 mb-2">
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold">Idioma</span>
+                        <span class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-bold">{{ t('common.language') }}</span>
                         <button
                             type="button"
                             @click="toggleLang"
                             class="text-sm font-bold tracking-wide"
                         >
-                            <span :class="lang === 'ES' ? 'text-[#13495e]' : 'text-gray-300'">ES</span>
+                            <span :class="locale === 'es' ? 'text-[#13495e]' : 'text-gray-300'">ES</span>
                             <span class="text-gray-200 mx-1">/</span>
-                            <span :class="lang === 'EN' ? 'text-[#13495e]' : 'text-gray-300'">EN</span>
+                            <span :class="locale === 'en' ? 'text-[#13495e]' : 'text-gray-300'">EN</span>
                         </button>
                     </div>
 

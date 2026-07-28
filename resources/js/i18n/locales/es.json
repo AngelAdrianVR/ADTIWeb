@@ -1,0 +1,55 @@
+{
+  "common": {
+    "loading": "Cargando",
+    "scroll": "Scroll",
+    "language": "Idioma",
+    "menu": "Menú"
+  },
+  "nav": {
+    "home": "Inicio",
+    "services": "Servicios",
+    "projects": "Proyectos",
+    "about": "Nosotros",
+    "contact": "Contacto"
+  },
+  "hero": {
+    "title": "CONTROL Y AUTOMATIZACIÓN INDUSTRIAL CUSTOMIZADA",
+    "subtitle": "Conviérte tu empresa en una máquina eficaz, precisa y confiable de trabajo."
+  },
+  "footer": {
+    "tagline": "Automatización y diseño industrial de alto nivel para las Américas.",
+    "navigation": "Navegación",
+    "contact": "Contacto",
+    "terms": "Términos de Uso",
+    "privacy": "Política de Privacidad",
+    "rights": "Todos los derechos reservados.",
+    "taglineShort": "Industrial Automation · HMI · SCADA · Control Panels"
+  },
+  "splash": {
+    "tagline": "Industrial Automation"
+  },
+  "pages": {
+    "services": {
+      "title": "Servicios",
+      "description": "Nuestros servicios de automatización industrial."
+    },
+    "projects": {
+      "title": "Proyectos",
+      "description": "Conoce nuestros proyectos realizados."
+    },
+    "about": {
+      "title": "Nosotros",
+      "description": "Conoce más sobre ADTI y nuestro equipo."
+    },
+    "contact": {
+      "title": "Contacto",
+      "description": "Ponte en contacto con nosotros."
+    }
+  },
+  "clients": {
+    "title": "Clientes que confían en nosotros"
+  },
+  "video": {
+    "tagline": "Resolvemos tus problemas con la mejor solución"
+  }
+}

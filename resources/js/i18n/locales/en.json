@@ -1,0 +1,55 @@
+{
+  "common": {
+    "loading": "Loading",
+    "scroll": "Scroll",
+    "language": "Language",
+    "menu": "Menu"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "CUSTOM INDUSTRIAL CONTROL & AUTOMATION",
+    "subtitle": "Turn your company into an efficient, precise, and reliable work machine."
+  },
+  "footer": {
+    "tagline": "High-level industrial automation and design for the Americas.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved.",
+    "taglineShort": "Industrial Automation · HMI · SCADA · Control Panels"
+  },
+  "splash": {
+    "tagline": "Industrial Automation"
+  },
+  "pages": {
+    "services": {
+      "title": "Services",
+      "description": "Our industrial automation services."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Discover our completed projects."
+    },
+    "about": {
+      "title": "About Us",
+      "description": "Learn more about ADTI and our team."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with us."
+    }
+  },
+  "clients": {
+    "title": "Clients who trust us"
+  },
+  "video": {
+    "tagline": "We solve your problems with the best solution"
+  }
+}

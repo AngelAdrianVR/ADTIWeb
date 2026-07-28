@@ -5,3 +5,13 @@
 [x-cloak] {
     display: none;
 }
+
+/* ── Hide native scrollbar ── */
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: none;
+}
