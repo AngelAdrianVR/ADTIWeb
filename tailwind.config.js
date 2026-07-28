@@ -17,6 +17,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'deep-onyx': '#0F172A',
+                'brand-blue': '#0082A8',
+                'electric-cyan': '#00D4FF',
+                'steel-grey': '#6D6E71',
+                'ghost-white': '#F8FAFC',
+            },
         },
     },
 

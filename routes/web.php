@@ -1,18 +1,22 @@
 <?php
 
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+// Landing Pages
+Route::get('/', [LandingController::class, 'splash'])->name('splash');
+Route::get('/inicio', [LandingController::class, 'inicio'])->name('inicio');
+Route::get('/servicios', [LandingController::class, 'servicios'])->name('servicios');
+Route::get('/proyectos', [LandingController::class, 'proyectos'])->name('proyectos');
+Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
+Route::get('/contacto', [LandingController::class, 'contacto'])->name('contacto');
 
+// Legal Pages
+Route::get('/terminos', [LandingController::class, 'terms'])->name('terms.show');
+Route::get('/politica-privacidad', [LandingController::class, 'policy'])->name('policy.show');
+
+// Authenticated Routes
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
