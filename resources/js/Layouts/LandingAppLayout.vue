@@ -54,7 +54,7 @@ onUnmounted(() => {
             <!-- Header (inside main, overlays the page content) -->
             <section class="sticky top-0 left-0 w-full z-40 bg-transparent">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center h-20 justify-between">
+                    <div class="flex items-center h-16 justify-between">
                         <Link
                             :href="route('inicio')"
                             class="flex items-center gap-2"

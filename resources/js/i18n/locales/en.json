@@ -52,5 +52,33 @@
   },
   "video": {
     "tagline": "We solve your problems with the best solution"
+  },
+  "companyMap": {
+    "badge": "Our Facilities",
+    "title": "A glimpse into our ",
+    "titleHighlight": "work ecosystem",
+    "subtitle": "Every area at ADTI is designed for excellence. Explore our space and discover where the magic of industrial automation happens.",
+    "footer": "From the first engineering sketch to on-site commissioning, every stage of the process is integrated under one roof. This allows us to maintain full quality control, reduce delivery times, and deliver truly turnkey solutions.",
+    "areas": {
+      "troquelado": "Die Cutting",
+      "tableros": "Panels",
+      "ensambles": "Assembly",
+      "corte_cnc": "CNC Cutting",
+      "programacion": "Programming",
+      "embarques": "Shipping"
+    },
+    "panel": {
+      "areaLabel": "Area",
+      "close": "Close"
+    },
+    "unlockBar": "Scroll to continue",
+    "unlockDone": "Ready! Keep scrolling"
+  },
+  "certifications": {
+    "badge": "Certifications & Standards",
+    "title": "Backed by ",
+    "titleHighlight": "industry best practices",
+    "subtitle": "Our commitment to quality is backed by the most recognized certifications and partnerships in the industry. Each one represents years of experience, continuous training, and proven results.",
+    "footer": "These certifications are not just documents: they are the guarantee that every project we deliver meets the highest international standards of quality, safety, and performance."
   }
 }
