@@ -14,10 +14,10 @@ class ServicioController extends Controller
         return Inertia::render('Admin/Servicios', [
             'servicios' => Servicio::orderBy('sort_order')->get()
                 ->map(fn($s) => array_merge($s->toArray(), [
-                    'image_url' => $s->getFirstMediaUrl('image'),
+                    'image_url' => parse_url($s->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $s->getFirstMediaUrl('image'),
                     'gallery' => $s->getMedia('gallery')->map(fn($m) => [
                         'id' => $m->id,
-                        'url' => $m->getUrl(),
+                        'url' => parse_url($m->getUrl(), PHP_URL_PATH) ?: $m->getUrl(),
                     ])->values(),
                 ])),
         ]);

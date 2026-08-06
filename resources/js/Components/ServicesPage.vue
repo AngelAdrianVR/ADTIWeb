@@ -1,220 +1,56 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 
-// images
-import etiquetado from '@/../../public/images/etiquetado.webp';
-import celdaRobotica from '@/../../public/images/celda-robotica.webp';
-import bandaTransportadora from '@/../../public/images/banda_transportacion.webp';
-import finalLinea from '@/../../public/images/final_de_linea.webp';
-import programacion from '@/../../public/images/programacion.webp';
-import manufactura from '@/../../public/images/manufactura.webp';
-import tableros from '@/../../public/images/tableros.webp';
+const props = defineProps({
+    servicios: {
+        type: Array,
+        default: () => [],
+    },
+});
 
 const { t, locale } = useI18n();
 
-// Service categories / tabs
-const tabs = [
-    { key: 'labeling', labelEs: 'Sistemas de Etiquetado', labelEn: 'Labeling Systems' },
-    { key: 'conveyors', labelEs: 'Bandas de Transportación', labelEn: 'Conveyor Belts' },
-    { key: 'eol', labelEs: 'Automatización Fin de Línea', labelEn: 'End-of-Line Automation' },
-    { key: 'robotics', labelEs: 'Celdas Robóticas', labelEn: 'Robotic Cells' },
-    { key: 'machining', labelEs: 'Manufactura Mecánica', labelEn: 'Mechanical Manufacturing' },
-    { key: 'controls', labelEs: 'Automatización de Controles', labelEn: 'Control Automation' },
-    { key: 'panels', labelEs: 'Tableros de Control', labelEn: 'Control Panels' },
-];
+// ── Service categories / tabs (from DB) ──
+const tabs = computed(() =>
+    (props.servicios || []).map(s => ({
+        key: s.key,
+        labelEs: s.title_es,
+        labelEn: s.title_en,
+    }))
+);
 
-const activeTab = ref('labeling');
+const activeTab = ref(props.servicios?.[0]?.key ?? '');
 
-// Service data — bilingual
-const servicesData = {
-    labeling: {
-        es: {
-            title: 'Sistemas de Etiquetado Industrial',
-            description:
-                'Diseñamos e integramos sistemas de etiquetado y codificación de alta precisión para líneas de producción. Nuestras soluciones abarcan desde etiquetadoras automáticas, impresoras de inyección de tinta (CIJ), láser y transferencia térmica, hasta sistemas de visión para verificación de códigos y trazabilidad completa.',
-            features: [
-                'Etiquetado automático de alta velocidad',
-                'Codificación láser e inyección de tinta',
-                'Sistemas de visión para verificación',
-                'Trazabilidad y serialización',
-            ],
-        },
-        en: {
-            title: 'Industrial Labeling Systems',
-            description:
-                'We design and integrate high-precision labeling and coding systems for production lines. Our solutions range from automatic labelers, continuous inkjet printers (CIJ), laser and thermal transfer printers, to vision systems for code verification and complete traceability.',
-            features: [
-                'High-speed automatic labeling',
-                'Laser & inkjet coding',
-                'Vision inspection systems',
-                'Traceability & serialization',
-            ],
-        },
-        image: etiquetado,
-        techs: ['Markem-Imaje', 'Videojet', 'Domino', 'Cognex'],
-    },
-    conveyors: {
-        es: {
-            title: 'Bandas de Transportación',
-            description:
-                'Fabricamos y automatizamos sistemas de transportación industrial a la medida: bandas modulares, de rodillos, sanitarias y sistemas de acumulación. Integramos sensores, variadores de velocidad y controles inteligentes para optimizar el flujo de materiales en tu planta.',
-            features: [
-                'Bandas modulares y de rodillos',
-                'Transportadores sanitarios (FDA)',
-                'Sistemas de acumulación y desvío',
-                'Control de velocidad variable',
-            ],
-        },
-        en: {
-            title: 'Conveyor Belt Systems',
-            description:
-                'We manufacture and automate custom industrial conveyor systems: modular belts, roller conveyors, sanitary conveyors, and accumulation systems. We integrate sensors, variable frequency drives, and intelligent controls to optimize material flow in your plant.',
-            features: [
-                'Modular & roller conveyors',
-                'Sanitary conveyors (FDA compliant)',
-                'Accumulation & diverter systems',
-                'Variable speed control',
-            ],
-        },
-        image: bandaTransportadora,
-        techs: ['Intralox', 'Habasit', 'Dorner', 'FlexLink'],
-    },
-    eol: {
-        es: {
-            title: 'Automatización Fin de Línea',
-            description:
-                'Optimizamos el final de tu línea de producción con soluciones integrales: encajonadoras, paletizadores robóticos, envolvedoras de stretch y sistemas de inspección final. Automatizamos el empaque secundario para maximizar tu productividad y reducir costos operativos.',
-            features: [
-                'Encajonadoras y formadoras de cajas',
-                'Paletizado robótico',
-                'Envolvedoras de stretch y flejado',
-                'Inspección y control de calidad final',
-            ],
-        },
-        en: {
-            title: 'End-of-Line Automation',
-            description:
-                'We optimize the end of your production line with comprehensive solutions: case packers, robotic palletizers, stretch wrappers, and final inspection systems. We automate secondary packaging to maximize your productivity and reduce operational costs.',
-            features: [
-                'Case erectors & packers',
-                'Robotic palletizing',
-                'Stretch wrapping & strapping',
-                'Final quality inspection',
-            ],
-        },
-        image: finalLinea,
-        techs: ['ABB Palletizing', 'FANUC', 'KUKA', 'Robopac'],
-    },
-    robotics: {
-        es: {
-            title: 'Celdas Robóticas',
-            description:
-                'Diseñamos celdas robóticas llave en mano para aplicaciones de pick & place, soldadura, ensamblaje, pintura y manipulación de materiales. Integramos robots de 6 ejes, colaborativos (cobots) y SCARA con sistemas de seguridad perimetral y validación de procesos.',
-            features: [
-                'Robots de 6 ejes y colaborativos',
-                'Pick & place y paletizado',
-                'Soldadura y ensamblaje robotizado',
-                'Celdas con seguridad funcional',
-            ],
-        },
-        en: {
-            title: 'Robotic Cells',
-            description:
-                'We design turnkey robotic cells for pick & place, welding, assembly, painting, and material handling applications. We integrate 6-axis robots, collaborative robots (cobots), and SCARA systems with perimeter safety and process validation.',
-            features: [
-                '6-axis & collaborative robots',
-                'Pick & place & palletizing',
-                'Robotic welding & assembly',
-                'Functional safety cells',
-            ],
-        },
-        image: celdaRobotica,
-        techs: ['FANUC', 'Universal Robots', 'Yaskawa', 'ABB Robotics'],
-    },
-    machining: {
-        es: {
-            title: 'Manufactura Mecánica de Precisión',
-            description:
-                'Ofrecemos servicios de maquinado CNC, fresado, torneado y fabricación de piezas mecánicas bajo planos. Trabajamos con tolerancias estrictas y materiales diversos: aceros, aluminios, plásticos de ingeniería y aleaciones especiales para la industria automatizada.',
-            features: [
-                'Fresado y torneado CNC',
-                'Fabricación bajo plano (DFM)',
-                'Mecanizado de precisión multicavidad',
-                'Acabados superficiales industriales',
-            ],
-        },
-        en: {
-            title: 'Precision Mechanical Manufacturing',
-            description:
-                'We offer CNC machining, milling, turning, and mechanical parts fabrication from engineering drawings. We work with strict tolerances and diverse materials: steels, aluminum, engineering plastics, and special alloys for the automated industry.',
-            features: [
-                'CNC milling & turning',
-                'DFM-based fabrication',
-                'Multi-cavity precision machining',
-                'Industrial surface finishing',
-            ],
-        },
-        image: manufactura,
-        techs: ['Haas CNC', 'Mazak', 'DMG MORI', 'Mastercam'],
-    },
-    controls: {
-        es: {
-            title: 'Automatización de Controles',
-            description:
-                'Programamos y configuramos sistemas de control industrial con PLCs, HMIs, variadores y redes de comunicación industrial. Desarrollamos lógicas de control avanzadas, recetas de producción y sistemas de adquisición de datos para la toma de decisiones en tiempo real.',
-            features: [
-                'Programación de PLCs multi-marca',
-                'Redes Profinet, EtherNet/IP, Modbus',
-                'SCADA e historiadores de datos',
-                'Puesta en marcha y validación',
-            ],
-        },
-        en: {
-            title: 'Control Automation',
-            description:
-                'We program and configure industrial control systems with PLCs, HMIs, drives, and industrial communication networks. We develop advanced control logic, production recipes, and data acquisition systems for real-time decision making.',
-            features: [
-                'Multi-brand PLC programming',
-                'Profinet, EtherNet/IP, Modbus networks',
-                'SCADA & data historians',
-                'Commissioning & validation',
-            ],
-        },
-        image: programacion,
-        techs: ['Siemens TIA Portal', 'Allen-Bradley', 'Omron Sysmac', 'Ignition SCADA'],
-    },
-    panels: {
-        es: {
-            title: 'Tableros de Control',
-            description:
-                'Diseñamos y fabricamos tableros de control eléctrico conforme a las normativas UL 508A, IEC 61439 y NEMA. Desde el diagrama unifilar hasta el armado final, garantizamos calidad, seguridad y eficiencia energética en cada panel que entregamos.',
-            features: [
-                'Diseño conforme a UL 508A / IEC',
-                'Diagramas unifilares y de control',
-                'Cálculo térmico y selectividad',
-                'Pruebas FAT y puesta en marcha',
-            ],
-        },
-        en: {
-            title: 'Control Panels',
-            description:
-                'We design and manufacture electrical control panels compliant with UL 508A, IEC 61439, and NEMA standards. From single-line diagrams to final assembly, we guarantee quality, safety, and energy efficiency in every panel we deliver.',
-            features: [
-                'UL 508A / IEC compliant design',
-                'Single-line & control diagrams',
-                'Thermal & selectivity calculations',
-                'FAT testing & commissioning',
-            ],
-        },
-        image: tableros,
-        techs: ['UL 508A', 'IEC 61439', 'NEMA', 'EPLAN'],
-    },
-};
+// ── Service data — bilingual (from DB) ──
+const servicesData = computed(() => {
+    const data = {};
+    (props.servicios || []).forEach(s => {
+        data[s.key] = {
+            es: {
+                title: s.title_es,
+                description: s.description_es,
+                features: s.features_es || [],
+            },
+            en: {
+                title: s.title_en,
+                description: s.description_en,
+                features: s.features_en || [],
+            },
+            image: s.image_url,
+            techs: s.techs || [],
+            gallery: s.gallery || [],
+        };
+    });
+    return data;
+});
 
-const active = computed(() => servicesData[activeTab.value]);
-const activeData = computed(() => locale.value === 'en' ? active.value.en : active.value.es);
+const active = computed(() => servicesData.value[activeTab.value] || null);
+const activeData = computed(() => {
+    if (!active.value) return { title: '', description: '', features: [] };
+    return locale.value === 'en' ? active.value.en : active.value.es;
+});
 
 // Entrance animation trigger
 const mounted = ref(false);
@@ -251,13 +87,24 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
-// Placeholder images
-const galleryPlaceholders = [
-    { w: 'w-full', h: 'h-48', rounded: 'rounded-2xl' },
-    { w: 'w-full', h: 'h-24', rounded: 'rounded-xl' },
-    { w: 'w-full', h: 'h-24', rounded: 'rounded-xl' },
-    { w: 'w-full', h: 'h-24', rounded: 'rounded-xl' },
-];
+// ── Gallery scroll reveal observer ──
+let galleryObserver = null;
+function observeGallery() {
+    if (galleryObserver) galleryObserver.disconnect();
+    const items = document.querySelectorAll('.gallery-item');
+    if (!items.length) return;
+    galleryObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('gallery-revealed');
+                }, i * 120);
+                galleryObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    items.forEach(el => galleryObserver.observe(el));
+}
 
 onMounted(() => {
     // Trigger entrance animations after mount
@@ -270,21 +117,14 @@ onMounted(() => {
         checkTabsScroll();
         window.addEventListener('resize', checkTabsScroll);
 
-        // Intersection Observer for gallery scroll reveal
-        const galleryItems = document.querySelectorAll('.gallery-item');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, i) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('gallery-revealed');
-                    }, i * 120);
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
-        galleryItems.forEach(el => observer.observe(el));
+        // Observe gallery items
+        observeGallery();
     });
+});
+
+// Re-observe gallery when switching tabs
+watch(activeTab, () => {
+    nextTick(observeGallery);
 });
 </script>
 
@@ -307,7 +147,12 @@ onMounted(() => {
                     <span class="text-brand-blue">{{ locale === 'en' ? 'Solutions' : 'a tu Medida' }}</span>
                 </h1>
             </div>
+            <!-- Empty state -->
+            <div v-if="!tabs.length" class="text-center py-24">
+                <p class="text-steel-grey text-lg">{{ locale === 'en' ? 'No services available yet.' : 'No hay servicios disponibles por el momento.' }}</p>
+            </div>
 
+            <template v-else>
             <!-- ═══════ Tabs (horizontal scroll with nav arrows) ═══════ -->
             <div
                 class="relative mb-16 border-b border-gray-100 pb-px transition-all duration-700 ease-out delay-150"
@@ -411,12 +256,17 @@ onMounted(() => {
                             class="relative w-full aspect-[4/3] lg:aspect-[3/4] overflow-hidden"
                         >
                             <img
+                                v-if="active.image"
                                 :src="active.image"
                                 :alt="activeData.title"
                                 class="absolute inset-0 lg:-mt-28 w-full h-full object-contain"
                                 draggable="false"
                             />
-                            <!-- <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" /> -->
+                            <div v-else class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-deep-onyx/5 to-brand-blue/10 rounded-3xl">
+                                <svg class="size-16 text-steel-grey/20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+                                </svg>
+                            </div>
                         </div>
                     </Transition>
                 </div>
@@ -430,7 +280,7 @@ onMounted(() => {
                 <p class="text-xs uppercase tracking-[0.2em] text-steel-grey/40 font-semibold mb-4">
                     {{ locale === 'en' ? 'Technologies' : 'Tecnologías' }}
                 </p>
-                <div class="flex flex-wrap gap-2.5">
+                <div v-if="active.techs?.length" class="flex flex-wrap gap-2.5">
                     <span
                         v-for="tech in active.techs"
                         :key="tech"
@@ -439,32 +289,31 @@ onMounted(() => {
                         {{ tech }}
                     </span>
                 </div>
+                <p v-else class="text-sm text-steel-grey/50 italic">{{ locale === 'en' ? 'No technologies listed.' : 'Sin tecnologías registradas.' }}</p>
             </div>
 
             <!-- ═══════ Image Gallery ═══════ -->
             <div
+                v-if="active.gallery?.length"
                 class="mb-20 transition-all duration-700 ease-out delay-[600ms]"
                 :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'"
             >
                 <p class="text-xs uppercase tracking-[0.2em] text-steel-grey/40 font-semibold mb-6">
                     {{ locale === 'en' ? 'Project Gallery' : 'Galería de Proyectos' }}
                 </p>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     <div
-                        v-for="(img, i) in galleryPlaceholders"
-                        :key="i"
+                        v-for="(img, i) in active.gallery"
+                        :key="img.id"
                         @click="openLightbox(i)"
-                        :class="[img.h, img.rounded, i === 0 ? 'col-span-2 row-span-2 lg:row-span-2 h-full' : '']"
-                        class="gallery-item bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden hover:border-brand-blue/20 transition-all duration-500 ease-out cursor-pointer group"
+                        class="gallery-item bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden hover:border-brand-blue/20 transition-all duration-500 ease-out cursor-pointer group aspect-square"
                     >
-                        <div class="flex flex-col items-center gap-2 text-steel-grey/20 group-hover:text-brand-blue/30 transition-colors duration-300">
-                            <svg class="size-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
-                            <span class="text-[10px] uppercase tracking-wider font-medium">
-                                {{ locale === 'en' ? 'Image' : 'Imagen' }} {{ i + 1 }}
-                            </span>
-                        </div>
+                        <img
+                            :src="img.url"
+                            :alt="activeData.title + ' - ' + (i + 1)"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                        />
                     </div>
                 </div>
             </div>
@@ -508,6 +357,7 @@ onMounted(() => {
                 </Link>
             </div>
 
+            </template>
         </div>
     </div>
 
@@ -527,15 +377,13 @@ onMounted(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <div class="max-w-5xl max-h-[85vh] w-full rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
-                    <div class="flex flex-col items-center gap-4 p-8 text-steel-grey/20">
-                        <svg class="size-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        <span class="text-lg uppercase tracking-wider font-semibold">
-                            {{ locale === 'en' ? 'Image' : 'Imagen' }} {{ lightboxIndex + 1 }}
-                        </span>
-                    </div>
+                <div class="max-w-5xl max-h-[85vh] w-full rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center">
+                    <img
+                        v-if="active?.gallery?.[lightboxIndex]"
+                        :src="active.gallery[lightboxIndex].url"
+                        :alt="activeData.title"
+                        class="w-full h-full max-h-[85vh] object-contain"
+                    />
                 </div>
             </div>
         </Transition>

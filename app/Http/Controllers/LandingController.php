@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Servicio;
 use Inertia\Inertia;
 
 class LandingController extends Controller
@@ -19,7 +20,9 @@ class LandingController extends Controller
      */
     public function inicio()
     {
-        return Inertia::render('Landing/Inicio');
+        return Inertia::render('Landing/Inicio', [
+            'servicios' => $this->activeServicios(),
+        ]);
     }
 
     /**
@@ -27,7 +30,9 @@ class LandingController extends Controller
      */
     public function servicios()
     {
-        return Inertia::render('Landing/Servicios');
+        return Inertia::render('Landing/Servicios', [
+            'servicios' => $this->activeServicios(),
+        ]);
     }
 
     /**
@@ -68,5 +73,21 @@ class LandingController extends Controller
     public function policy()
     {
         return Inertia::render('PrivacyPolicy');
+    }
+
+    /**
+     * Active services with media URLs, ordered by sort_order.
+     */
+    private function activeServicios()
+    {
+        return Servicio::where('active', true)->orderBy('sort_order')->get()
+            ->map(fn($s) => array_merge($s->toArray(), [
+                'image_url' => parse_url($s->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $s->getFirstMediaUrl('image'),
+                'gallery' => $s->getMedia('gallery')->map(fn($m) => [
+                    'id' => $m->id,
+                    'url' => parse_url($m->getUrl(), PHP_URL_PATH) ?: $m->getUrl(),
+                ])->values(),
+            ]))
+            ->values();
     }
 }

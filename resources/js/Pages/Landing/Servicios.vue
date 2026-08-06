@@ -6,11 +6,18 @@ import ServicesPage from '@/Components/ServicesPage.vue';
 
 const { t } = useI18n();
 
+const props = defineProps({
+    servicios: {
+        type: Array,
+        default: () => [],
+    },
+});
+
 defineOptions({ layout: LandingAppLayout });
 </script>
 
 <template>
     <Head :title="t('pages.services.title')" />
 
-    <ServicesPage />
+    <ServicesPage :servicios="servicios" />
 </template>

@@ -14,10 +14,10 @@ class ProyectoController extends Controller
         return Inertia::render('Admin/Proyectos', [
             'proyectos' => Proyecto::orderBy('sort_order')->get()
                 ->map(fn($p) => array_merge($p->toArray(), [
-                    'image_url' => $p->getFirstMediaUrl('image'),
+                    'image_url' => parse_url($p->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $p->getFirstMediaUrl('image'),
                     'gallery' => $p->getMedia('gallery')->map(fn($m) => [
                         'id' => $m->id,
-                        'url' => $m->getUrl(),
+                        'url' => parse_url($m->getUrl(), PHP_URL_PATH) ?: $m->getUrl(),
                     ])->values(),
                 ])),
         ]);

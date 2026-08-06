@@ -14,7 +14,7 @@ class CertificacionController extends Controller
         return Inertia::render('Admin/Certificaciones', [
             'certificaciones' => Certificacion::orderBy('sort_order')->get()
                 ->map(fn($c) => array_merge($c->toArray(), [
-                    'image_url' => $c->getFirstMediaUrl('image'),
+                    'image_url' => parse_url($c->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $c->getFirstMediaUrl('image'),
                 ])),
         ]);
     }

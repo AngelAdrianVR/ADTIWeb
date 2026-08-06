@@ -14,6 +14,13 @@ import StatsShowcase from '@/Components/StatsShowcase.vue';
 
 const { t } = useI18n();
 
+const props = defineProps({
+    servicios: {
+        type: Array,
+        default: () => [],
+    },
+});
+
 defineOptions({
     layout: LandingAppLayout,
 });
@@ -24,7 +31,7 @@ defineOptions({
 
     <HeroSection />
 
-    <ServicesCards />
+    <ServicesCards :servicios="servicios" />
 
     <FeaturedProjects />
 

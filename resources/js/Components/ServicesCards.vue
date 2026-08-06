@@ -1,81 +1,49 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 
-//images
-import image1 from '@/../../public/images/line-1.png';
+const props = defineProps({
+    servicios: {
+        type: Array,
+        default: () => [],
+    },
+});
 
 const { locale } = useI18n();
 
-const services = [
-    {
-        id: 1,
-        es: {
-            title: 'Programación HMI & SCADA',
-            subtitle: 'Monitoreo y control en tiempo real',
-            description:
-                'Desarrollamos interfaces hombre-máquina y sistemas SCADA de alto rendimiento para monitoreo y control en tiempo real. Nuestras soluciones integran visualización avanzada, alarmas inteligentes y registro histórico de datos.',
-        },
-        en: {
-            title: 'HMI & SCADA Programming',
-            subtitle: 'Real-time monitoring & control',
-            description:
-                'We develop high-performance human-machine interfaces and SCADA systems for real-time monitoring and control. Our solutions integrate advanced visualization, intelligent alarms, and historical data logging.',
-        },
-        image: image1,
-        imageBg: 'from-[#0082A8] via-[#007090] to-[#00D4FF]',
-        gallery: [
-            { label: 'Ignition SCADA', color: 'bg-[#0F172A]' },
-            { label: 'Wonderware', color: 'bg-[#1e3a5f]' },
-            { label: 'Siemens WinCC', color: 'bg-[#0d2137]' },
-        ],
-    },
-    {
-        id: 2,
-        es: {
-            title: 'Diseño de Tableros de Control',
-            subtitle: 'Normativas UL, IEC y NEMA',
-            description:
-                'Diseñamos y fabricamos tableros de control eléctrico conforme a normativas UL e IEC. Desde el diagrama unifilar hasta el armado final, garantizamos calidad, seguridad y eficiencia en cada panel.',
-        },
-        en: {
-            title: 'Control Panel Design',
-            subtitle: 'UL, IEC & NEMA compliant',
-            description:
-                'We design and manufacture electrical control panels compliant with UL and IEC standards. From single-line diagrams to final assembly, we ensure quality, safety, and efficiency in every panel.',
-        },
-        image: image1,
-        imageBg: 'from-[#6D6E71] via-[#4a4b4d] to-[#0F172A]',
-        gallery: [
-            { label: 'UL 508A', color: 'bg-[#0F172A]' },
-            { label: 'IEC 61439', color: 'bg-[#1e3a5f]' },
-            { label: 'NEMA', color: 'bg-[#0d2137]' },
-        ],
-    },
-    {
-        id: 3,
-        es: {
-            title: 'Diseño Industrial & Prototipado',
-            subtitle: 'Del concepto a la realidad',
-            description:
-                'Ofrecemos diseño industrial integral: modelado 3D, planos de fabricación, prototipado rápido y optimización de procesos productivos. Convertimos tus conceptos en soluciones tangibles y funcionales.',
-        },
-        en: {
-            title: 'Industrial Design & Prototyping',
-            subtitle: 'From concept to reality',
-            description:
-                'We offer comprehensive industrial design: 3D modeling, manufacturing drawings, rapid prototyping, and production process optimization. We turn your concepts into tangible and functional solutions.',
-        },
-        image: image1,
-        imageBg: 'from-[#0082A8] via-[#005f7a] to-[#0F172A]',
-        gallery: [
-            { label: 'SolidWorks', color: 'bg-[#0F172A]' },
-            { label: 'AutoCAD', color: 'bg-[#1e3a5f]' },
-            { label: 'Fusion 360', color: 'bg-[#0d2137]' },
-        ],
-    },
+// Gradient cycle for card image backgrounds
+const imageGradients = [
+    'from-[#0082A8] via-[#007090] to-[#00D4FF]',
+    'from-[#6D6E71] via-[#4a4b4d] to-[#0F172A]',
+    'from-[#0082A8] via-[#005f7a] to-[#0F172A]',
+    'from-[#0F172A] via-[#1e3a5f] to-[#0082A8]',
+    'from-[#0082A8] via-[#0d2137] to-[#00D4FF]',
+    'from-[#6D6E71] via-[#0F172A] to-[#0082A8]',
 ];
+
+// Services (from DB)
+const services = computed(() =>
+    (props.servicios || []).map((s, i) => ({
+        id: s.id,
+        es: {
+            title: s.title_es,
+            subtitle: s.features_es?.[0] || '',
+            description: s.description_es,
+            features: s.features_es || [],
+        },
+        en: {
+            title: s.title_en,
+            subtitle: s.features_en?.[0] || '',
+            description: s.description_en,
+            features: s.features_en || [],
+        },
+        image: s.image_url,
+        imageBg: imageGradients[i % imageGradients.length],
+        techs: s.techs || [],
+        gallery: s.gallery || [],
+    }))
+);
 
 const activeService = ref(null);
 const drawerOpen = ref(false);
@@ -161,8 +129,13 @@ onUnmounted(() => {
             </p>
         </div>
 
+        <!-- ── Empty state ── -->
+        <div v-if="!services.length" class="text-center py-16">
+            <p class="text-steel-grey text-lg">{{ locale === 'en' ? 'No services available yet.' : 'No hay servicios disponibles por el momento.' }}</p>
+        </div>
+
         <!-- ── Cards Grid ── -->
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             <div
                 v-for="(service, i) in services"
                 :key="service.id"
@@ -189,12 +162,18 @@ onUnmounted(() => {
                     <!-- Image block -->
                     <div class="relative h-52 sm:h-56 overflow-hidden bg-gradient-to-br" :class="service.imageBg">
                         <img
+                            v-if="service.image"
                             :src="service.image"
                             :alt="currentData(service).title"
                             class="w-full h-full object-cover mix-blend-overlay opacity-60
                                 group-hover:scale-110 group-hover:opacity-80
                                 transition-all duration-700 ease-out"
                         />
+                        <div v-else class="w-full h-full flex items-center justify-center">
+                            <svg class="size-12 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+                            </svg>
+                        </div>
                         <!-- Gradient overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
                     </div>
@@ -277,6 +256,7 @@ onUnmounted(() => {
                     <div class="relative px-8 pt-16 pb-10 bg-gradient-to-br overflow-hidden" :class="activeService.imageBg">
                         <!-- Background image -->
                         <img
+                            v-if="activeService.image"
                             :src="activeService.image"
                             :alt="currentData(activeService).title"
                             class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50"
@@ -304,21 +284,63 @@ onUnmounted(() => {
                             </p>
                         </div>
 
-                        <!-- Gallery / Tech tags -->
+                        <!-- Features -->
+                        <div v-if="currentData(activeService).features?.length">
+                            <p class="text-xs uppercase tracking-[0.2em] text-steel-grey/50 font-semibold mb-3">
+                                {{ locale === 'en' ? 'Key Features' : 'Características Principales' }}
+                            </p>
+                            <ul class="space-y-2.5">
+                                <li
+                                    v-for="(feat, i) in currentData(activeService).features"
+                                    :key="i"
+                                    class="flex items-start gap-3 text-sm text-steel-grey"
+                                >
+                                    <span class="shrink-0 mt-0.5 size-5 rounded-full bg-brand-blue/10 flex items-center justify-center">
+                                        <svg class="size-2.5 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+                                    </span>
+                                    {{ feat }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Gallery -->
+                        <div v-if="activeService.gallery?.length">
+                            <p class="text-xs uppercase tracking-[0.2em] text-steel-grey/50 font-semibold mb-4">
+                                {{ locale === 'en' ? 'Gallery' : 'Galería' }}
+                            </p>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div
+                                    v-for="img in activeService.gallery"
+                                    :key="img.id"
+                                    class="aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100"
+                                >
+                                    <img
+                                        :src="img.url"
+                                        :alt="currentData(activeService).title"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tech tags -->
                         <div>
                             <p class="text-xs uppercase tracking-[0.2em] text-steel-grey/50 font-semibold mb-4">
                                 {{ locale === 'en' ? 'Technologies & Standards' : 'Tecnologías & Estándares' }}
                             </p>
-                            <div class="flex flex-wrap gap-2.5">
+                            <div v-if="activeService.techs?.length" class="flex flex-wrap gap-2.5">
                                 <span
-                                    v-for="item in activeService.gallery"
-                                    :key="item.label"
-                                    class="px-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-                                    :class="item.color"
+                                    v-for="tech in activeService.techs"
+                                    :key="tech"
+                                    class="px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-[#0F172A] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                                 >
-                                    {{ item.label }}
+                                    {{ tech }}
                                 </span>
                             </div>
+                            <p v-else class="text-sm text-steel-grey/50 italic">{{ locale === 'en' ? 'No technologies listed.' : 'Sin tecnologías registradas.' }}</p>
                         </div>
                     </div>
 
