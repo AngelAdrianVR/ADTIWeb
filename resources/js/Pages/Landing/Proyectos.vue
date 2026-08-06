@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import LandingAppLayout from '@/Layouts/LandingAppLayout.vue';
@@ -84,7 +84,14 @@ const projects = [
 const mounted = ref(false);
 const activeIndex = ref(0);
 const galleryOpen = ref(null);
-const videoPlaying = ref(false);
+const videoPlaying = ref(true);
+const panelKey = ref(0);
+
+// Reinicia las animaciones del panel al cambiar de proyecto
+watch(activeIndex, () => {
+    panelKey.value++;
+    nextTick(() => { videoPlaying.value = true; });
+});
 
 // ── COMPUTED ──
 const currentProject = computed(() => projects[activeIndex.value]);
@@ -102,18 +109,15 @@ const currentGallery = computed(() => {
 
 // ── NAVIGATION METHODS ──
 function nextProject() {
-    videoPlaying.value = false;
     activeIndex.value = (activeIndex.value + 1) % projects.length;
 }
 
 function prevProject() {
-    videoPlaying.value = false;
     activeIndex.value = (activeIndex.value - 1 + projects.length) % projects.length;
 }
 
 function selectProject(index) {
     if (activeIndex.value === index) return;
-    videoPlaying.value = false;
     activeIndex.value = index;
 }
 
@@ -202,14 +206,17 @@ onUnmounted(() => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- ═══════ Header ═══════ -->
-            <div
-                class="mb-16 transition-all duration-700 ease-out"
-                :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'"
-            >
-                <span class="inline-block text-xs uppercase tracking-[0.3em] text-brand-blue font-semibold mb-4 px-4 py-1.5 rounded-full border border-brand-blue/20 bg-brand-blue/[0.06]">
+            <div class="mb-16">
+                <span
+                    class="inline-block text-xs uppercase tracking-[0.3em] text-brand-blue font-semibold mb-4 px-4 py-1.5 rounded-full border border-brand-blue/20 bg-brand-blue/[0.06] transition-all duration-700 ease-out"
+                    :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'"
+                >
                     {{ locale === 'en' ? 'Featured Projects' : 'Proyectos Destacados' }}
                 </span>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] max-w-3xl">
+                <h1
+                    class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] max-w-3xl transition-all duration-700 delay-150 ease-out"
+                    :class="mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'"
+                >
                     {{ locale === 'en' ? 'Solutions that ' : 'Soluciones que ' }}
                     <span class="text-brand-blue">{{ locale === 'en' ? 'speak for themselves' : 'hablan por sí mismas' }}</span>
                 </h1>
@@ -219,7 +226,7 @@ onUnmounted(() => {
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
                 
                 <!-- ── Columna Izquierda: Stacked Cards Deck (5 cols) ── -->
-                <div class="lg:col-span-5 flex flex-col items-center lg:items-stretch select-none sticky top-28">
+                <div class="lg:col-span-5 flex flex-col items-center lg:items-stretch select-none lg:sticky lg:top-28">
                     
                     <!-- Contenedor del mazo 3D -->
                     <div class="relative w-full max-w-md mx-auto aspect-[4/4.2] sm:aspect-[4/3.8] pt-16">
@@ -228,9 +235,9 @@ onUnmounted(() => {
                             v-for="(project, idx) in projects"
                             :key="project.id"
                             @click="selectProject(idx)"
-                            :style="getCardStackStyle(idx)"
+                            :style="{ ...getCardStackStyle(idx), transitionDelay: mounted ? `${idx * 150}ms` : '0ms' }"
                             class="absolute inset-x-0 bottom-0 aspect-[4/3.4] rounded-3xl bg-gradient-to-br overflow-hidden shadow-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] border border-white/10 group"
-                            :class="project.color"
+                            :class="[project.color, mounted ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0']"
                         >
                             <!-- Patrón decorativo y degradados -->
                             <div class="absolute inset-0 opacity-20"
@@ -295,14 +302,14 @@ onUnmounted(() => {
                 <!-- ── Columna Derecha: Información del Proyecto con Fade Suave (7 cols) ── -->
                 <div class="lg:col-span-7 min-h-[500px]">
                     <Transition name="fade-project" mode="out-in">
-                        <div :key="currentProject.id" class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100/80 space-y-8">
+                        <div :key="currentProject.id + '-' + panelKey" class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-100/80 space-y-8">
                             
                             <!-- Cabecera de Descripción -->
                             <div class="space-y-4">
                                 <div class="flex flex-wrap items-center justify-between gap-4">
                                     <span
-                                        class="inline-block text-xs uppercase tracking-[0.25em] font-extrabold px-3.5 py-1.5 rounded-full border"
-                                        :style="{ color: currentProject.accent, borderColor: currentProject.accent + '40', backgroundColor: currentProject.accent + '10' }"
+                                        class="inline-block text-xs uppercase tracking-[0.25em] font-extrabold px-3.5 py-1.5 rounded-full border transition-all duration-500 ease-out"
+                                        :style="{ color: currentProject.accent, borderColor: currentProject.accent + '40', backgroundColor: currentProject.accent + '10', transitionDelay: '0ms' }"
                                     >
                                         {{ locale === 'en' ? currentProject.en.category : currentProject.es.category }}
                                     </span>
@@ -310,34 +317,35 @@ onUnmounted(() => {
                                     <!-- Botón para expandir al Lightbox -->
                                     <button
                                         @click="openGallery(activeIndex, 0)"
-                                        class="text-xs font-semibold text-steel-grey hover:text-brand-blue flex items-center gap-1.5 transition-colors"
+                                        class="text-xs font-semibold text-steel-grey hover:text-brand-blue flex items-center gap-1.5 transition-all duration-300 hover:translate-x-0.5"
                                     >
-                                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <svg class="size-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                                         </svg>
                                         {{ locale === 'en' ? 'Open Gallery' : 'Galería Completa' }}
                                     </button>
                                 </div>
 
-                                <h2 class="text-2xl sm:text-4xl font-black text-deep-onyx tracking-tight leading-tight">
+                                <h2 class="text-2xl sm:text-4xl font-black text-deep-onyx tracking-tight leading-tight transition-all duration-500 delay-100 ease-out">
                                     {{ locale === 'en' ? currentProject.en.title : currentProject.es.title }}
                                 </h2>
 
-                                <p class="text-steel-grey leading-relaxed text-base sm:text-lg">
+                                <p class="text-steel-grey leading-relaxed text-base sm:text-lg transition-all duration-500 delay-200 ease-out">
                                     {{ locale === 'en' ? currentProject.en.desc : currentProject.es.desc }}
                                 </p>
                             </div>
 
                             <!-- Muestra de Tecnologías -->
-                            <div class="pt-2 border-t border-slate-100">
+                            <div class="pt-2 border-t border-slate-100 transition-all duration-500 delay-300 ease-out">
                                 <p class="text-[11px] uppercase tracking-[0.2em] text-steel-grey/60 font-bold mb-3">
                                     {{ locale === 'en' ? 'Technologies Used' : 'Tecnologías Utilizadas' }}
                                 </p>
                                 <div class="flex flex-wrap gap-2">
                                     <span
-                                        v-for="tech in currentProject.techs"
+                                        v-for="(tech, tIdx) in currentProject.techs"
                                         :key="tech"
-                                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100/80 text-deep-onyx border border-slate-200/60"
+                                        :style="{ transitionDelay: `${300 + tIdx * 60}ms` }"
+                                        class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100/80 text-deep-onyx border border-slate-200/60 transition-all duration-400 ease-out hover:bg-brand-blue/10 hover:border-brand-blue/30 hover:text-brand-blue hover:-translate-y-0.5 hover:shadow-sm"
                                     >
                                         {{ tech }}
                                     </span>
@@ -345,7 +353,7 @@ onUnmounted(() => {
                             </div>
 
                             <!-- Galería Visual del Proyecto & Video -->
-                            <div class="space-y-4 pt-2 border-t border-slate-100">
+                            <div class="space-y-4 pt-2 border-t border-slate-100 transition-all duration-500 delay-400 ease-out">
                                 <div class="flex items-center justify-between">
                                     <p class="text-[11px] uppercase tracking-[0.2em] text-steel-grey/60 font-bold">
                                         {{ locale === 'en' ? 'Project Preview' : 'Vistas del Proyecto' }}
@@ -355,9 +363,9 @@ onUnmounted(() => {
                                     <button
                                         v-if="currentProject.video"
                                         @click="videoPlaying = !videoPlaying"
-                                        class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 transition-colors"
+                                        class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 hover:text-red-700 transition-all duration-300 hover:scale-105"
                                     >
-                                        <svg class="size-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <svg class="size-4 transition-transform duration-300" :class="{ 'rotate-180': videoPlaying }" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                                         </svg>
                                         {{ videoPlaying ? (locale === 'en' ? 'Hide Video' : 'Ocultar Video') : (locale === 'en' ? 'Watch Video' : 'Ver Video') }}
@@ -370,31 +378,40 @@ onUnmounted(() => {
                                         v-for="(img, iIdx) in currentProject.images"
                                         :key="iIdx"
                                         @click="openGallery(activeIndex, iIdx)"
-                                        class="group/thumb relative aspect-video rounded-xl bg-gradient-to-br overflow-hidden border border-slate-200 cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:shadow-md"
+                                        :style="{ transitionDelay: `${iIdx * 80}ms` }"
+                                        class="group/thumb relative aspect-video rounded-xl bg-gradient-to-br overflow-hidden border border-slate-200 cursor-pointer transition-all duration-500 ease-out hover:scale-[1.05] hover:shadow-lg hover:-translate-y-0.5 hover:border-brand-blue/30"
                                         :class="currentProject.color"
                                     >
-                                        <div class="absolute inset-0 bg-black/20 group-hover/thumb:bg-transparent transition-colors" />
+                                        <div class="absolute inset-0 bg-black/20 group-hover/thumb:bg-transparent transition-all duration-300" />
                                         <div class="absolute inset-0 flex items-center justify-center">
-                                            <svg class="size-6 text-white/80 group-hover/thumb:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <svg class="size-6 text-white/80 group-hover/thumb:scale-125 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" :d="img.icon" />
                                             </svg>
+                                        </div>
+                                        <!-- Overlay "Ampliar" al hover -->
+                                        <div class="absolute inset-0 flex items-end justify-center pb-2 opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/60 to-transparent">
+                                            <span class="text-[10px] font-bold text-white uppercase tracking-wider">
+                                                {{ locale === 'en' ? 'Expand' : 'Ampliar' }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Reproductor de video condicional -->
-                                <div
-                                    v-else-if="currentProject.video && videoPlaying"
-                                    class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-black"
-                                >
-                                    <iframe
-                                        :src="currentProject.video + '?autoplay=1&rel=0'"
-                                        class="w-full h-full"
-                                        frameborder="0"
-                                        allow="autoplay; encrypted-media"
-                                        allowfullscreen
-                                    />
-                                </div>
+                                <Transition name="video-reveal">
+                                    <div
+                                        v-if="currentProject.video && videoPlaying"
+                                        class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-black"
+                                    >
+                                        <iframe
+                                            :src="currentProject.video + '?autoplay=1&rel=0'"
+                                            class="w-full h-full"
+                                            frameborder="0"
+                                            allow="autoplay; encrypted-media"
+                                            allowfullscreen
+                                        />
+                                    </div>
+                                </Transition>
                             </div>
 
                         </div>
@@ -405,7 +422,7 @@ onUnmounted(() => {
 
             <!-- ═══════ CTA ═══════ -->
             <div
-                class="mt-28 text-center py-12 px-8 rounded-[2.5rem] bg-gradient-to-br from-deep-onyx to-[#0d2137] transition-all duration-700 ease-out"
+                class="mt-28 text-center py-12 px-8 rounded-[2.5rem] bg-gradient-to-br from-deep-onyx to-[#0d2137] transition-all duration-700 delay-500 ease-out"
                 :class="mounted ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'"
             >
                 <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
@@ -465,8 +482,9 @@ onUnmounted(() => {
 
                 <div
                     v-if="currentGallery"
-                    class="max-w-4xl max-h-[80vh] w-full aspect-[4/3] rounded-2xl bg-gradient-to-br overflow-hidden shadow-2xl relative"
+                    class="max-w-4xl max-h-[80vh] w-full aspect-[4/3] rounded-2xl bg-gradient-to-br overflow-hidden shadow-2xl relative transition-all duration-500 ease-out"
                     :class="currentGallery.project.color"
+                    :key="'gallery-' + currentGallery.project.id + '-' + currentGallery.index"
                 >
                     <div class="absolute inset-0 opacity-15"
                         style="background-image: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 24px 24px;"
@@ -502,6 +520,22 @@ onUnmounted(() => {
 .fade-project-leave-to {
     opacity: 0;
     transform: translateY(-12px);
+}
+
+/* Transición para el reproductor de video */
+.video-reveal-enter-active {
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.video-reveal-leave-active {
+    transition: all 0.25s ease-in;
+}
+.video-reveal-enter-from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+}
+.video-reveal-leave-to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
 }
 
 /* Transición para el Lightbox */

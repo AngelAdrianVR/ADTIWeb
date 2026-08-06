@@ -29,4 +29,14 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    // ── Admin: Landing Content Management ──
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('servicios', \App\Http\Controllers\Admin\ServicioController::class)
+            ->except(['show', 'create', 'edit']);
+        Route::resource('proyectos', \App\Http\Controllers\Admin\ProyectoController::class)
+            ->except(['show', 'create', 'edit']);
+        Route::resource('certificaciones', \App\Http\Controllers\Admin\CertificacionController::class)
+            ->except(['show', 'create', 'edit']);
+    });
 });

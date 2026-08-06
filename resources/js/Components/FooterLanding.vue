@@ -32,7 +32,9 @@ const { t, locale } = useI18n();
 
                 <!-- ── Brand ── -->
                 <div class="sm:col-span-2 lg:col-span-1">
-                    <img draggable="false" class="h-10 md:h-11" src="@/../../public/images/logo_3d.png" alt="ADTI">
+                    <Link :href="route('login')" class="cursor-default">
+                        <img draggable="false" class="h-10 md:h-11 hover:opacity-80 transition-opacity duration-200" src="@/../../public/images/logo_3d.png" alt="ADTI">
+                    </Link>
                     <p class="mt-5 text-sm text-white/40 leading-relaxed max-w-xs">
                         {{ t('footer.tagline') }}
                     </p>

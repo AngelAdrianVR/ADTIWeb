@@ -3,7 +3,8 @@
     "loading": "Loading",
     "scroll": "Scroll",
     "language": "Language",
-    "menu": "Menu"
+    "menu": "Menu",
+    "back": "Back to home"
   },
   "nav": {
     "home": "Home",
@@ -49,6 +50,11 @@
   },
   "clients": {
     "title": "Clients who trust us"
+  },
+  "legal": {
+    "termsTitle": "Terms and Conditions",
+    "privacyTitle": "Privacy Policy",
+    "comingSoon": "We are preparing this document. It will be available soon."
   },
   "video": {
     "tagline": "We solve your problems with the best solution"
