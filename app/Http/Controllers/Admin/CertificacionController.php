@@ -14,7 +14,12 @@ class CertificacionController extends Controller
         return Inertia::render('Admin/Certificaciones', [
             'certificaciones' => Certificacion::orderBy('sort_order')->get()
                 ->map(fn($c) => array_merge($c->toArray(), [
+                    'image_id' => $c->getFirstMedia('image')?->id,
                     'image_url' => parse_url($c->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $c->getFirstMediaUrl('image'),
+                    'gallery' => $c->getMedia('gallery')->map(fn($m) => [
+                        'id' => $m->id,
+                        'url' => parse_url($m->getUrl(), PHP_URL_PATH) ?: $m->getUrl(),
+                    ])->values(),
                 ])),
         ]);
     }
@@ -31,12 +36,18 @@ class CertificacionController extends Controller
             'sort_order' => 'nullable|integer',
             'active' => 'boolean',
             'image' => 'nullable|image|max:5120',
+            'gallery.*' => 'nullable|image|max:5120',
         ]);
 
         $cert = Certificacion::create($data);
 
         if ($request->hasFile('image')) {
             $cert->addMediaFromRequest('image')->toMediaCollection('image');
+        }
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $cert->addMedia($file)->toMediaCollection('gallery');
+            }
         }
 
         return redirect()->back()->with('success', 'Certificación creada.');
@@ -54,6 +65,8 @@ class CertificacionController extends Controller
             'sort_order' => 'nullable|integer',
             'active' => 'boolean',
             'image' => 'nullable|image|max:5120',
+            'gallery.*' => 'nullable|image|max:5120',
+            'remove_gallery_ids' => 'nullable|array',
         ]);
 
         $certificacion->update($data);
@@ -61,6 +74,14 @@ class CertificacionController extends Controller
         if ($request->hasFile('image')) {
             $certificacion->clearMediaCollection('image');
             $certificacion->addMediaFromRequest('image')->toMediaCollection('image');
+        }
+        if ($request->has('remove_gallery_ids')) {
+            $certificacion->media()->whereIn('id', $request->remove_gallery_ids)->get()->each->delete();
+        }
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $file) {
+                $certificacion->addMedia($file)->toMediaCollection('gallery');
+            }
         }
 
         return redirect()->back()->with('success', 'Certificación actualizada.');

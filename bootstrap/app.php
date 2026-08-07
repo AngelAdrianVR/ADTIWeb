@@ -17,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->alias([
+            'track.visits' => \App\Http\Middleware\TrackVisits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

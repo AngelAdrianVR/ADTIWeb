@@ -19,6 +19,14 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    proyectos: {
+        type: Array,
+        default: () => [],
+    },
+    certificaciones: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 defineOptions({
@@ -33,13 +41,13 @@ defineOptions({
 
     <ServicesCards :servicios="servicios" />
 
-    <FeaturedProjects />
+    <FeaturedProjects :proyectos="proyectos" />
 
     <CompanyMap3D />
 
     <ClientsRibbon />
 
-    <CertificationsShowcase />
+    <CertificationsShowcase :certificaciones="certificaciones" />
 
     <StatsShowcase />
 

@@ -8,8 +8,30 @@ defineOptions({ layout: LandingAppLayout });
 
 const { t, locale } = useI18n();
 
-// ── PROJECTS DATA ──
-const projects = [
+const props = defineProps({
+    proyectos: {
+        type: Array,
+        default: () => [],
+    },
+});
+
+// ── Visual palette / icons (rotated per card) ──
+const palettes = [
+    { color: 'from-[#0082A8] via-[#0b2740] to-[#0F172A]', accent: '#0082A8' },
+    { color: 'from-[#0F172A] via-[#10344d] to-[#00D4FF]', accent: '#00D4FF' },
+    { color: 'from-[#6D6E71] via-[#2d3748] to-[#0F172A]', accent: '#6D6E71' },
+    { color: 'from-[#1e293b] via-[#0b2740] to-[#0082A8]', accent: '#0082A8' },
+];
+
+const icons = [
+    'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z',
+    'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z',
+    'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z',
+    'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+];
+
+// ── PROJECTS DATA (respaldo si no hay registros en el gestor) ──
+const sampleProjects = [
     {
         id: 'linea-ensamble',
         es: {
@@ -80,6 +102,38 @@ const projects = [
     },
 ];
 
+// Convierte URLs de YouTube a formato embed (también acepta archivos de video directos)
+function toEmbedVideoUrl(url) {
+    if (!url) return null;
+    const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
+    if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    return url;
+}
+
+// ── Normalize DB projects into card data ──
+const projects = computed(() => {
+    if (!props.proyectos.length) return sampleProjects;
+
+    return props.proyectos.map((p, idx) => {
+        const palette = palettes[idx % palettes.length];
+        const features = p.features_en?.length ? p.features_en : (p.features_es || []);
+        const gallery = p.gallery || [];
+        const images = gallery.length
+            ? gallery.map((g, i) => ({ src: g.url, icon: icons[(idx + i) % icons.length] }))
+            : [{ icon: icons[idx % icons.length] }];
+
+        return {
+            id: p.key || p.id,
+            es: { title: p.title_es, category: p.category || 'Automatización', desc: p.description_es || '' },
+            en: { title: p.title_en || p.title_es, category: p.category || 'Automation', desc: p.description_en || p.description_es || '' },
+            ...palette,
+            images,
+            video: toEmbedVideoUrl(p.video_url || p.video_file_url || null),
+            techs: features.slice(0, 5),
+        };
+    });
+});
+
 // ── STATE ──
 const mounted = ref(false);
 const activeIndex = ref(0);
@@ -94,26 +148,26 @@ watch(activeIndex, () => {
 });
 
 // ── COMPUTED ──
-const currentProject = computed(() => projects[activeIndex.value]);
+const currentProject = computed(() => projects.value[activeIndex.value]);
 
 const currentGallery = computed(() => {
     if (!galleryOpen.value) return null;
     const { pIdx, iIdx } = galleryOpen.value;
     return { 
-        project: projects[pIdx], 
-        image: projects[pIdx].images[iIdx], 
+        project: projects.value[pIdx], 
+        image: projects.value[pIdx].images[iIdx], 
         index: iIdx, 
-        total: projects[pIdx].images.length 
+        total: projects.value[pIdx].images.length 
     };
 });
 
 // ── NAVIGATION METHODS ──
 function nextProject() {
-    activeIndex.value = (activeIndex.value + 1) % projects.length;
+    activeIndex.value = (activeIndex.value + 1) % projects.value.length;
 }
 
 function prevProject() {
-    activeIndex.value = (activeIndex.value - 1 + projects.length) % projects.length;
+    activeIndex.value = (activeIndex.value - 1 + projects.value.length) % projects.value.length;
 }
 
 function selectProject(index) {
@@ -124,7 +178,7 @@ function selectProject(index) {
 // ── STACKED CARD VISUAL CALCULATIONS ──
 // Calcula el estilo de cada tarjeta en el mazo 3D en función de su distancia al activo
 function getCardStackStyle(index) {
-    const total = projects.length;
+    const total = projects.value.length;
     let diff = (index - activeIndex.value + total) % total;
     
     // Si la tarjeta está detrás (ej. tarjeta anterior en un array corto), la colocamos al final
@@ -168,13 +222,13 @@ function closeGallery() {
 function galleryNext() {
     if (!galleryOpen.value) return;
     const { pIdx, iIdx } = galleryOpen.value;
-    const total = projects[pIdx].images.length;
+    const total = projects.value[pIdx].images.length;
     galleryOpen.value = { pIdx, iIdx: (iIdx + 1) % total };
 }
 function galleryPrev() {
     if (!galleryOpen.value) return;
     const { pIdx, iIdx } = galleryOpen.value;
-    const total = projects[pIdx].images.length;
+    const total = projects.value[pIdx].images.length;
     galleryOpen.value = { pIdx, iIdx: (iIdx - 1 + total) % total };
 }
 
@@ -239,11 +293,20 @@ onUnmounted(() => {
                             class="absolute inset-x-0 bottom-0 aspect-[4/3.4] rounded-3xl bg-gradient-to-br overflow-hidden shadow-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] border border-white/10 group"
                             :class="[project.color, mounted ? 'translate-y-0 opacity-100' : 'translate-y-16 opacity-0']"
                         >
+                            <!-- Imagen de fondo (si el proyecto tiene galería) -->
+                            <img
+                                v-if="project.images[0].src"
+                                :src="project.images[0].src"
+                                :alt="project.en.title"
+                                loading="lazy"
+                                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+
                             <!-- Patrón decorativo y degradados -->
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.4) 1px, transparent 1px); background-size: 20px 20px;"
                             />
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/25" />
 
                             <!-- Icono / Visual central del proyecto -->
                             <div class="absolute inset-0 flex items-center justify-center pb-12">
@@ -373,7 +436,7 @@ onUnmounted(() => {
                                 </div>
 
                                 <!-- Miniaturas del proyecto activo -->
-                                <div v-if="!videoPlaying" class="grid grid-cols-4 gap-3">
+                                <div class="grid grid-cols-4 gap-3">
                                     <div
                                         v-for="(img, iIdx) in currentProject.images"
                                         :key="iIdx"
@@ -382,8 +445,15 @@ onUnmounted(() => {
                                         class="group/thumb relative aspect-video rounded-xl bg-gradient-to-br overflow-hidden border border-slate-200 cursor-pointer transition-all duration-500 ease-out hover:scale-[1.05] hover:shadow-lg hover:-translate-y-0.5 hover:border-brand-blue/30"
                                         :class="currentProject.color"
                                     >
-                                        <div class="absolute inset-0 bg-black/20 group-hover/thumb:bg-transparent transition-all duration-300" />
-                                        <div class="absolute inset-0 flex items-center justify-center">
+                                        <img
+                                            v-if="img.src"
+                                            :src="img.src"
+                                            :alt="currentProject.en.title"
+                                            loading="lazy"
+                                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/thumb:scale-110"
+                                        />
+                                        <div v-else class="absolute inset-0 bg-black/20 group-hover/thumb:bg-transparent transition-all duration-300" />
+                                        <div v-if="!img.src" class="absolute inset-0 flex items-center justify-center">
                                             <svg class="size-6 text-white/80 group-hover/thumb:scale-125 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" :d="img.icon" />
                                             </svg>
@@ -404,11 +474,18 @@ onUnmounted(() => {
                                         class="aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-black"
                                     >
                                         <iframe
-                                            :src="currentProject.video + '?autoplay=1&rel=0'"
+                                            v-if="currentProject.video.includes('youtube')"
+                                            :src="currentProject.video + '?rel=0'"
                                             class="w-full h-full"
                                             frameborder="0"
-                                            allow="autoplay; encrypted-media"
+                                            allow="encrypted-media; picture-in-picture"
                                             allowfullscreen
+                                        />
+                                        <video
+                                            v-else
+                                            :src="currentProject.video"
+                                            class="w-full h-full object-contain"
+                                            controls
                                         />
                                     </div>
                                 </Transition>
@@ -486,18 +563,28 @@ onUnmounted(() => {
                     :class="currentGallery.project.color"
                     :key="'gallery-' + currentGallery.project.id + '-' + currentGallery.index"
                 >
-                    <div class="absolute inset-0 opacity-15"
-                        style="background-image: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 24px 24px;"
+                    <img
+                        v-if="currentGallery.image.src"
+                        :src="currentGallery.image.src"
+                        :alt="currentGallery.project.en.title"
+                        class="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="flex flex-col items-center gap-4 text-white/30">
-                            <svg class="size-24 sm:size-32" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
+                    <template v-else>
+                        <div class="absolute inset-0 opacity-15"
+                            style="background-image: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 24px 24px;"
+                        />
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <svg class="size-24 sm:size-32 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" :d="currentGallery.image.icon" />
                             </svg>
-                            <span class="text-sm uppercase tracking-wider font-semibold">
-                                {{ locale === 'en' ? 'Image' : 'Imagen' }} {{ currentGallery.index + 1 }} / {{ currentGallery.total }}
-                            </span>
                         </div>
+                    </template>
+
+                    <!-- Image counter -->
+                    <div class="absolute bottom-5 inset-x-0 flex justify-center">
+                        <span class="px-3 py-1.5 rounded-full bg-black/50 text-white/80 text-xs font-semibold uppercase tracking-wider">
+                            {{ locale === 'en' ? 'Image' : 'Imagen' }} {{ currentGallery.index + 1 }} / {{ currentGallery.total }}
+                        </span>
                     </div>
                 </div>
             </div>

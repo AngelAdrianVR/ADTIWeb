@@ -15,6 +15,8 @@ class ProyectoController extends Controller
             'proyectos' => Proyecto::orderBy('sort_order')->get()
                 ->map(fn($p) => array_merge($p->toArray(), [
                     'image_url' => parse_url($p->getFirstMediaUrl('image'), PHP_URL_PATH) ?: $p->getFirstMediaUrl('image'),
+                    'video_id' => $p->getFirstMedia('video')?->id,
+                    'video_file_url' => parse_url($p->getFirstMediaUrl('video'), PHP_URL_PATH) ?: $p->getFirstMediaUrl('video'),
                     'gallery' => $p->getMedia('gallery')->map(fn($m) => [
                         'id' => $m->id,
                         'url' => parse_url($m->getUrl(), PHP_URL_PATH) ?: $m->getUrl(),
@@ -43,6 +45,8 @@ class ProyectoController extends Controller
             'active' => 'boolean',
             'image' => 'nullable|image|max:5120',
             'gallery.*' => 'nullable|image|max:5120',
+            'video_url' => 'nullable|string|max:500',
+            'video' => 'nullable|file|mimes:mp4,webm,mov,ogv|max:102400',
         ]);
 
         $proyecto = Proyecto::create($data);
@@ -54,6 +58,9 @@ class ProyectoController extends Controller
             foreach ($request->file('gallery') as $file) {
                 $proyecto->addMedia($file)->toMediaCollection('gallery');
             }
+        }
+        if ($request->hasFile('video')) {
+            $proyecto->addMediaFromRequest('video')->toMediaCollection('video');
         }
 
         return redirect()->back()->with('success', 'Proyecto creado.');
@@ -80,6 +87,8 @@ class ProyectoController extends Controller
             'image' => 'nullable|image|max:5120',
             'gallery.*' => 'nullable|image|max:5120',
             'remove_gallery_ids' => 'nullable|array',
+            'video_url' => 'nullable|string|max:500',
+            'video' => 'nullable|file|mimes:mp4,webm,mov,ogv|max:102400',
         ]);
 
         $proyecto->update($data);
@@ -95,6 +104,10 @@ class ProyectoController extends Controller
             foreach ($request->file('gallery') as $file) {
                 $proyecto->addMedia($file)->toMediaCollection('gallery');
             }
+        }
+        if ($request->hasFile('video')) {
+            $proyecto->clearMediaCollection('video');
+            $proyecto->addMediaFromRequest('video')->toMediaCollection('video');
         }
 
         return redirect()->back()->with('success', 'Proyecto actualizado.');

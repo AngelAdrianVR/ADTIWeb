@@ -24,6 +24,7 @@ class Proyecto extends Model implements HasMedia
         'location_en',
         'year',
         'category',
+        'video_url',
         'features_es',
         'features_en',
         'sort_order',
@@ -45,6 +46,10 @@ class Proyecto extends Model implements HasMedia
             ->useDisk('public');
 
         $this->addMediaCollection('gallery')
+            ->useDisk('public');
+
+        $this->addMediaCollection('video')
+            ->singleFile()
             ->useDisk('public');
     }
 

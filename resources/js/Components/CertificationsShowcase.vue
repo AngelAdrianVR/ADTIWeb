@@ -4,8 +4,15 @@ import { useI18n } from "vue-i18n";
 
 const { t, locale } = useI18n();
 
-// ── CERTIFICACIONES ──
-const certifications = [
+const props = defineProps({
+    certificaciones: {
+        type: Array,
+        default: () => [],
+    },
+});
+
+// ── CERTIFICACIONES (respaldo si no hay registros en el gestor) ──
+const sampleCertifications = [
     {
         id: "ul508a",
         es: {
@@ -100,9 +107,28 @@ const carouselIndices = ref({});
 const carouselCanScroll = ref({});
 const carouselMaxScroll = ref({});
 
+// ── Certificaciones desde el gestor (o respaldo) ──
+const certifications = computed(() => {
+    if (!props.certificaciones.length) return sampleCertifications;
+
+    return props.certificaciones.map((c) => {
+        const gallery = (c.gallery || []).map((g) => ({ src: g.url, alt: c.title }));
+        const images = [
+            ...(c.image_url ? [{ src: c.image_url, alt: c.title }] : []),
+            ...gallery,
+        ];
+        return {
+            id: c.key || c.id,
+            es: { title: c.title, desc: c.description_es || "" },
+            en: { title: c.title, desc: c.description_en || c.description_es || "" },
+            images,
+        };
+    });
+});
+
 // Computed: certificaciones con datos según locale
 const items = computed(() =>
-    certifications.map((c) => ({
+    certifications.value.map((c) => ({
         ...c,
         title: locale.value === "en" ? c.en.title : c.es.title,
         desc: locale.value === "en" ? c.en.desc : c.es.desc,

@@ -29,7 +29,16 @@ class ContactoController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        Contacto::create($validator->validated());
+        $contacto = Contacto::create($validator->validated());
+
+        \App\Models\Notificacion::create([
+            'type' => 'mensaje',
+            'title' => 'Nuevo mensaje de contacto',
+            'description' => $contacto->nombre . ' (' . $contacto->correo . ')',
+            'route_name' => 'admin.mensajes.index',
+            'route_params' => null,
+            'related_id' => $contacto->id,
+        ]);
 
         return back()->with('contact_success', true);
     }

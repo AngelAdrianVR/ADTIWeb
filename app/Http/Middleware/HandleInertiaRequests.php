@@ -40,6 +40,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'contact_success' => $request->session()->get('contact_success'),
             ],
+            'unreadNotificaciones' => fn () => \App\Models\Notificacion::whereNull('read_at')->count(),
+            'notificaciones' => fn () => \App\Models\Notificacion::orderByDesc('created_at')->limit(15)->get()
+                ->map(fn($n) => array_merge($n->toArray(), [
+                    'is_unread' => $n->read_at === null,
+                ])),
         ];
     }
 }

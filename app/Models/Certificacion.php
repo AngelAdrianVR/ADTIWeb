@@ -34,6 +34,9 @@ class Certificacion extends Model implements HasMedia
         $this->addMediaCollection('image')
             ->singleFile()
             ->useDisk('public');
+
+        $this->addMediaCollection('gallery')
+            ->useDisk('public');
     }
 
     // ── Accessors: bilingual helpers ──

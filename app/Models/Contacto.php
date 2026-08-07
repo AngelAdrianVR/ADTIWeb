@@ -11,5 +11,10 @@ class Contacto extends Model
         'telefono',
         'correo',
         'descripcion',
+        'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 }
