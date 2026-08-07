@@ -14,6 +14,10 @@ const props = defineProps({
         type: Array,
         default: () => ['py-1', 'bg-white'],
     },
+    position: {
+        type: String,
+        default: 'bottom',
+    },
 });
 
 let open = ref(false);
@@ -65,8 +69,8 @@ const alignmentClasses = computed(() => {
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
-                :class="[widthClass, alignmentClasses]"
+                class="absolute z-50 rounded-md shadow-lg"
+                :class="[widthClass, alignmentClasses, position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2']"
                 style="display: none;"
                 @click="open = false"
             >

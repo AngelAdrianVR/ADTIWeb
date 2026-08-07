@@ -1,0 +1,90 @@
+{
+  "common": {
+    "loading": "Loading",
+    "scroll": "Scroll",
+    "language": "Language",
+    "menu": "Menu",
+    "back": "Back to home"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "CUSTOM INDUSTRIAL CONTROL & AUTOMATION",
+    "subtitle": "Turn your company into an efficient, precise, and reliable work machine."
+  },
+  "footer": {
+    "tagline": "High-level industrial automation and design for the Americas.",
+    "navigation": "Navigation",
+    "contact": "Contact",
+    "location": "oficinas",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved.",
+    "taglineShort": "Industrial Automation · HMI · SCADA · Control Panels"
+  },
+  "splash": {
+    "tagline": "Industrial Automation"
+  },
+  "pages": {
+    "services": {
+      "title": "Services",
+      "description": "Our industrial automation services."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Discover our completed projects."
+    },
+    "about": {
+      "title": "About Us",
+      "description": "Learn more about ADTI and our team."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with us."
+    }
+  },
+  "clients": {
+    "title": "Clients who trust us"
+  },
+  "legal": {
+    "termsTitle": "Terms and Conditions",
+    "privacyTitle": "Privacy Policy",
+    "comingSoon": "We are preparing this document. It will be available soon."
+  },
+  "video": {
+    "tagline": "We solve your problems with the best solution"
+  },
+  "companyMap": {
+    "badge": "Our Facilities",
+    "title": "A glimpse into our ",
+    "titleHighlight": "work ecosystem",
+    "subtitle": "Every area at ADTI is designed for excellence. Explore our space and discover where the magic of industrial automation happens.",
+    "footer": "From the first engineering sketch to on-site commissioning, every stage of the process is integrated under one roof. This allows us to maintain full quality control, reduce delivery times, and deliver truly turnkey solutions.",
+    "areas": {
+      "troquelado": "Die Cutting",
+      "tableros": "Panels",
+      "ensambles": "Assembly",
+      "corte_cnc": "CNC Cutting",
+      "programacion": "Programming",
+      "embarques": "Shipping"
+    },
+    "panel": {
+      "areaLabel": "Area",
+      "close": "Close"
+    },
+    "unlockBar": "Scroll to continue",
+    "unlockDone": "Ready! Keep scrolling"
+  },
+  "certifications": {
+    "badge": "Certifications & Standards",
+    "title": "Backed by ",
+    "titleHighlight": "industry best practices",
+    "subtitle": "Our commitment to quality is backed by the most recognized certifications and partnerships in the industry. Each one represents years of experience, continuous training, and proven results.",
+    "footer": "These certifications are not just documents: they are the guarantee that every project we deliver meets the highest international standards of quality, safety, and performance."
+  }
+}

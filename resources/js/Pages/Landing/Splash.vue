@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const visible = ref(true);
 const lettersReady = ref(false);
@@ -97,7 +100,7 @@ onMounted(() => {
             :class="lettersReady && !fadeOut ? 'opacity-100' : 'opacity-0'"
             style="transition: opacity 0.6s ease-out 1.2s"
         >
-            Industrial Automation
+            {{ t('splash.tagline') }}
         </p>
 
         <!-- Minimalist Spinning Gear Loader -->
@@ -128,7 +131,7 @@ onMounted(() => {
                 <line x1="6" y1="20" x2="14" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35" />
                 <line x1="26" y1="20" x2="34" y2="20" stroke="currentColor" stroke-width="1" opacity="0.35" />
             </svg>
-            <span class="text-[10px] uppercase tracking-[0.25em] text-steel-grey/35">Cargando</span>
+            <span class="text-[10px] uppercase tracking-[0.25em] text-steel-grey/35">{{ t('common.loading') }}</span>
         </div>
 
         <!-- Bottom accent line -->
